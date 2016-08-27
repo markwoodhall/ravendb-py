@@ -48,8 +48,20 @@ class cache(object):
         for update in documents:
             ids.append(update["id"])
 
+            updated = False
             for index, item in enumerate(self._cache):
                 if update["id"] in item:
                     self._cache[index]["doc"] = update["doc"]
+                    updated = true
+
+            if not updated:
+                doc = update["doc"]
+                self._cache.append({
+                    "action": "PUT",
+                    "id": update["id"],
+                    "doc": doc,
+                    "metadata": doc["@metadata"]
+                })
+
 
         return ids

@@ -46,7 +46,39 @@ class test_when_using_ravenpy_session_for_documents(test_base.TestCase):
 
         self.assertEqual(len(results), 0)
 
-    def test_it_is_possible_to_update_documents(self):
+    def test_it_is_possible_to_update_stored_documents(self):
+
+        doc = [self.session.createDocument('Test', {
+            "title": "test document"
+        })]
+
+        documentIds = self.session.store(doc)
+
+        results = None
+
+        docId = documentIds[0]
+
+        doc[0]['title'] = "test document update"
+
+        updatedDoc = self.session.createDocument('Test', {
+            "title": "test document update"
+        })
+
+        self.session.update([{
+            "id": docId,
+            "doc": updatedDoc
+        }])
+
+        self.session.save()
+
+        results = None
+        results = self.session.load(documentIds)
+
+        self.assertEqual("test document update", results[0]['title'])
+        self.session.delete(documentIds)
+        self.session.save()
+
+    def test_it_is_possible_to_update_loaded_documents(self):
 
         documentIds = self.session.store([self.session.createDocument('Test', {
             "title": "test document"
@@ -66,11 +98,10 @@ class test_when_using_ravenpy_session_for_documents(test_base.TestCase):
             "id": docId,
             "doc": doc
         }])
+        self.session.save()
 
         results = None
         results = self.session.load(documentIds)
-
-        results[0]['title'] = "test document update"
 
         self.assertEqual("test document update", results[0]['title'])
         self.session.delete(documentIds)
